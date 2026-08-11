@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenWall — Write to Anyone</title>
+    <style>
+        /* Modern Reset & Fluid Design System */
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #0f172a;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --transition: all 0.25s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 60px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Layout */
+        header {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 12px;
+        }
+
+        header h1 span {
+            color: var(--primary);
+        }
+
+        header p {
+            color: var(--text-light);
+            font-size: 1.125rem;
+        }
+
+        /* Input Form Block */
+        .form-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 48px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            transition: var(--transition);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: var(--bg-card);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:disabled {
+            background-color: var(--text-light);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Connection Status Indicator */
+        .status-banner {
+            text-align: center;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin: -20px auto 30px;
+            width: fit-content;
+            font-weight: 600;
+        }
+        .status-connected { background-color: #dcfce7; color: #166534; }
+        .status-connecting { background-color: #fef9c3; color: #854d0e; }
+
+        /* Feed Display Board */
+        .board-heading {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .board-count {
+            font-size: 0.875rem;
+            background-color: var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: var(--text-main);
+        }
+
+        .message-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            animation: slideUp 0.35s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed var(--border);
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .msg-routing {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .msg-routing span {
+            color: var(--primary);
+        }
+
+        .msg-date {
+            color: var(--text-light);
+        }
+
+        .msg-body {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            background-color: var(--bg-card);
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Main Brand Header -->
+        <header>
+            <h1>Open<span>Wall</span></h1>
+            <p>Say anything to anyone. Post a global anonymous message onto the live public board.</p>
+        </header>
+
+        <div id="connection-status" class="status-banner status-connecting">Connecting to Global Database...</div>
+
+        <!-- Message Submission Panel -->
+        <div class="form-card">
+            <form id="message-form" onsubmit="postMessage(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="recipient-input">To (Who is this for?)</label>
+                        <input type="text" id="recipient-input" required placeholder="e.g., Someone Special, My Future Self, The World">
+                    </div>
+                    <div class="form-group">
+                        <label for="sender-input">From (Your Nickname)</label>
+                        <input type="text" id="sender-input" placeholder="e.g., Anonymous, A Friend, Stranger" value="Anonymous">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="message-input">Your Message</label>
+                        <textarea id="message-input" required placeholder="Type your letter or note here..."></textarea>
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn" class="btn-submit" disabled>Connecting to network...</button>
+            </form>
+        </div>
+
+        <!-- Real-time Live Board Feed Layout -->
+        <div class="board-section">
+            <div class="board-heading">
+                <h2>Live Global Feed</h2>
+                <div class="board-count" id="message-counter">0 notes</div>
+            </div>
+            
+            <div class="message-feed" id="feed-container">
+                <div class="empty-state">
+                    <p>Loading active notes from the global database pipeline...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Free Global Network Connector Scripts -->
+    <script>
+        // Free open-source WebSocket pipeline cluster
+        const RELAY_URL = "wss://relay.damus.io";
+        let socket;
+        let activeMessages = [];
+
+        document.addEventListener('DOMContentLoaded', connectToGlobalNetwork);
+
+        function connectToGlobalNetwork() {
+            socket = new WebSocket(RELAY_URL);
+
+            socket.onopen = () => {
+                document.getElementById('connection-status').className = "status-banner status-connected";
+                document.getElementById('connection-status').innerText = "Connected to Global Network Live";
+                
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Publish onto the Wall";
+
+                // Request recent messages specifically matching this website's signature tag
+                const subscriptionRequest = ["REQ", "feed_subscription", {
+                    kinds:,
+                    limit: 40,
+                    "#t": ["openwall_historyjetzt_app"]
